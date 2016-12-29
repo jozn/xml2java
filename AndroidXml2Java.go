@@ -209,15 +209,15 @@ func ToCamel(s string) string {
             capNext = false
         case v == '_'  || v == ' ':
             capNext = true
-
         case v == '+':
             n += string(v)
             capNext = true
-        default:
+        case v >= '0' && v <= '9':
             n += string(v)//for numbers,...
             capNext = false
+        default:
+            capNext = false
         }
-        //capNext = false
     }
 
     n = strings.Replace(n, "+","_",-1)
