@@ -8,6 +8,7 @@ import (
     "text/template"
     "os"
     "io/ioutil"
+    "unicode"
 )
 
 const XML_DIR = `D:\dev_working2\MS_Native\app\src\main\res\layout\`
@@ -108,11 +109,19 @@ func transformNewXmlFile(xmlF os.FileInfo) {
     //}
     //tmpl.Execute(os.Stdout,cell)
 
-    genFile.Cells = append(genFile.Cells,cell)
-
+    if len(cell.Fields) > 0{
+        rootCls := cell.Fields[0].ViewClass
+        if len(rootCls) > 0 && unicode.IsUpper(rune(rootCls[0])) {//not <merge /> xmls
+            genFile.Cells = append(genFile.Cells,cell)
+        }
+    }
 }
 
 func (field *FieldView) walkDown(cell *CellView) {
+    field.extractClassName()
+    if unicode.IsLower(rune(field.ViewClass[0])){//not <include /> tag
+        return
+    }
     cell.Fields = append(cell.Fields, field)
     field.processFieldView()
     for _, child := range field.Childs {
@@ -121,7 +130,6 @@ func (field *FieldView) walkDown(cell *CellView) {
 }
 
 func (field *FieldView ) processFieldView() bool{
-    field.extractClassName()
     genFile.Imports.Add(field.XMLName.Local)
 
     if len(field.Id)>0 {
@@ -191,12 +199,14 @@ func ToCamel(s string) string {
         switch {
         case (v >= 'A' && v <= 'Z'):
             n += string(v)
+            capNext = false
         case v >= 'a' && v <= 'z':
             if capNext {
                 n += strings.ToUpper(string(v))
             } else {
                 n += string(v)
             }
+            capNext = false
         case v == '_'  || v == ' ':
             capNext = true
 
@@ -204,10 +214,10 @@ func ToCamel(s string) string {
             n += string(v)
             capNext = true
         default:
-            //n += string(v)//for numbers,...
+            n += string(v)//for numbers,...
             capNext = false
         }
-        capNext = false
+        //capNext = false
     }
 
     n = strings.Replace(n, "+","_",-1)
