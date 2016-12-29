@@ -193,35 +193,35 @@ func (g *GenFile) Gen() {
 func ToCamel(s string) string {
     s = strings.Trim(s, " ")
     s = strings.Replace(s, "__","+",-1)
-    n := ""
+    strOut := ""
     capNext := true
-    for _, v := range s {
+    for _, char := range s {
         switch {
-        case (v >= 'A' && v <= 'Z'):
-            n += string(v)
+        case (char >= 'A' && char <= 'Z'):
+            strOut += string(char)
             capNext = false
-        case v >= 'a' && v <= 'z':
+        case char >= 'a' && char <= 'z':
             if capNext {
-                n += strings.ToUpper(string(v))
+                strOut += strings.ToUpper(string(char))
             } else {
-                n += string(v)
+                strOut += string(char)
             }
             capNext = false
-        case v == '_'  || v == ' ':
+        case char == '_'  || char == ' ':
             capNext = true
-        case v == '+':
-            n += string(v)
+        case char == '+':
+            strOut += string(char)
             capNext = true
-        case v >= '0' && v <= '9':
-            n += string(v)//for numbers,...
+        case char >= '0' && char <= '9':
+            strOut += string(char)//for numbers,...
             capNext = false
         default:
             capNext = false
         }
     }
 
-    n = strings.Replace(n, "+","_",-1)
-    return n
+    strOut = strings.Replace(strOut, "+","_",-1)
+    return strOut
 }
 
 func noErr(err error)  {
