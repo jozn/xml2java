@@ -107,10 +107,9 @@ func transformNewXmlFile(xmlF os.FileInfo) {
 
 	root.walkDown(cell,false)
 
-	if len(cell.Fields) >= 0 {//againest <merge/> tag
-        fmt.Println(cell.FileName)
+	if len(cell.Fields) > 0 {//againest <merge/> tag
+        //fmt.Println(cell.FileName)
 		rootCls := cell.Fields[0].ViewClass
-		//if len(rootCls) > 0 && unicode.IsUpper(rune(rootCls[0])) { //not <merge /> xmls
 		if len(rootCls) > 0 { //not <merge /> xmls
 			genFile.Cells = append(genFile.Cells, cell)
 		}
@@ -129,22 +128,11 @@ func (field *FieldView) walkDown(cell *CellView, isIncludeCall bool) {
             //fmt.Println("layout:" +field.Layout + " "+ field.XMLName.Local)
             addIncludeTag(field,cell)
         }
-        //if isIncludeCall == false && field.XMLName.Local != "merge"{
-        //    return
-        //}
 	}
 
     if field.XMLName.Local == "merge" && isIncludeCall == false{
         cell.IsMergeLayout = true
     }
-
-    fmt.Println("layout:" +field.Layout + " "+ field.XMLName.Local)
-
-    /*//just could "merge" reachable when called from include
-    if field.XMLName.Local != "merge" {
-        field.addFieldViewToCell(cell)
-        //cell.Fields = append(cell.Fields, field)
-    }*/
 
     field.addFieldViewToCellView(cell)
 
