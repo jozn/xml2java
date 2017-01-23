@@ -99,7 +99,7 @@ func transformNewXmlFile(xmlF os.FileInfo) {
 		RootField: root,
 	}
 
-	root.walkDown(cell)
+	root.walkDown(cell,false)
 
 	if len(cell.Fields) > 0 {//againest <merge/> tag
 		rootCls := cell.Fields[0].ViewClass
@@ -109,21 +109,25 @@ func transformNewXmlFile(xmlF os.FileInfo) {
 	}
 }
 
-func (field *FieldView) walkDown(cell *CellView) {
+func (field *FieldView) walkDown(cell *CellView, addMergeChilds bool) {
 	field.extractClassName()
 	if unicode.IsLower(rune(field.ViewClass[0])) { //not <include /> tag
         if field.XMLName.Local == "include"{
             //fmt.Println("layout:" +field.Layout + " "+ field.XMLName.Local)
             addIncludeTag(field,cell)
         }
-		return
+        if addMergeChilds == false {
+            return
+        }
 	}
 
-    field.processFieldView()
-    cell.Fields = append(cell.Fields, field)
+    if field.XMLName.Local != "merge" {
+        field.processFieldView()
+        cell.Fields = append(cell.Fields, field)
+    }
 
     for _, child := range field.Childs {
-		child.walkDown(cell)
+		child.walkDown(cell,addMergeChilds)
 	}
 }
 
@@ -150,7 +154,7 @@ func addIncludeTag(include *FieldView, cell *CellView) {
     err = dec.Decode(&root)
     noErr(err)
 
-    root.walkDown(cell)
+    root.walkDown(cell,true)
 }
 
 //get Class name - ex: com.mardomsara.com.Avatar -> Avatar
