@@ -11,6 +11,11 @@ import (
 	"unicode"
 )
 
+//todo: maybe could use <include /> the way that if it has id, then look at that layout and instead of inline
+//find ids just use the name of layout to it class in the X class (must not be merge layout)
+//maybe this is overkill and better tu use compond view in this case
+
+
 const XML_DIR = `D:\dev_working2\MS_Native\app\src\main\res\layout\`
 
 //const XML_DIR = `D:\ME\_apks\Soroush0.14.4_\res\layout\`
