@@ -39,6 +39,7 @@ type CellView struct {
 	ClassName string
 	RootField FieldView
 	Fields    []*FieldView
+    IsMergeLayout bool
 }
 
 type GenFile struct {
@@ -106,37 +107,59 @@ func transformNewXmlFile(xmlF os.FileInfo) {
 
 	root.walkDown(cell,false)
 
-	if len(cell.Fields) > 0 {//againest <merge/> tag
+	if len(cell.Fields) >= 0 {//againest <merge/> tag
+        fmt.Println(cell.FileName)
 		rootCls := cell.Fields[0].ViewClass
-		if len(rootCls) > 0 && unicode.IsUpper(rune(rootCls[0])) { //not <merge /> xmls
+		//if len(rootCls) > 0 && unicode.IsUpper(rune(rootCls[0])) { //not <merge /> xmls
+		if len(rootCls) > 0 { //not <merge /> xmls
 			genFile.Cells = append(genFile.Cells, cell)
 		}
 	}
 }
 
-func (field *FieldView) walkDown(cell *CellView, addMergeChilds bool) {
+func (field *FieldView) walkDown(cell *CellView, isIncludeCall bool) {
 	field.extractClassName()
 	if unicode.IsLower(rune(field.ViewClass[0])) { //not <include /> tag
+        //just we support include and merge tag of no View tags
+        if field.XMLName.Local != "include" && field.XMLName.Local != "merge"{
+            return
+        }
+
         if field.XMLName.Local == "include"{
             //fmt.Println("layout:" +field.Layout + " "+ field.XMLName.Local)
             addIncludeTag(field,cell)
         }
-        if addMergeChilds == false {
-            return
-        }
+        //if isIncludeCall == false && field.XMLName.Local != "merge"{
+        //    return
+        //}
 	}
 
-    if field.XMLName.Local != "merge" {
-        field.processFieldView()
-        cell.Fields = append(cell.Fields, field)
+    if field.XMLName.Local == "merge" && isIncludeCall == false{
+        cell.IsMergeLayout = true
     }
 
+    fmt.Println("layout:" +field.Layout + " "+ field.XMLName.Local)
+
+    /*//just could "merge" reachable when called from include
+    if field.XMLName.Local != "merge" {
+        field.addFieldViewToCell(cell)
+        //cell.Fields = append(cell.Fields, field)
+    }*/
+
+    field.addFieldViewToCellView(cell)
+
     for _, child := range field.Childs {
-		child.walkDown(cell,addMergeChilds)
+		child.walkDown(cell, isIncludeCall)
 	}
 }
 
-func (field *FieldView) processFieldView() bool {
+func (field *FieldView) addFieldViewToCellView(cell *CellView)  {
+    if field.XMLName.Local == "include" || field.XMLName.Local == "merge"{
+        return
+    }
+
+    cell.Fields = append(cell.Fields, field)
+
 	genFile.Imports.Add(field.XMLName.Local)
 
 	if len(field.Id) > 0 {
@@ -145,7 +168,7 @@ func (field *FieldView) processFieldView() bool {
 		field.ShouldSet = true
 	}
 	//fmt.Printf("%v %v %v \n",field.XMLName.Local,field.Id,field.ViewClass)
-	return true
+	return
 }
 
 //todo extract xml reader
@@ -289,7 +312,11 @@ const TMPL_CELL = `
      {{- end}}
 
         public {{ .ClassName }}(ViewGroup parent) {
+            {{- if  eq .IsMergeLayout  true}}
+            root = ({{ $rootClass }}) AppUtil.inflate(R.layout.{{ .FileName }},parent,true);//for Compound Views
+            {{ else }}
             root = ({{ $rootClass }}) AppUtil.inflate(R.layout.{{ .FileName }},parent);
+            {{- end}}
             {{- range .Fields -}}
               {{- if .ShouldSet}}
             {{ .Id }} = ( {{- .ViewClass -}} ) root.findViewById( R.id. {{- .Id -}} );
@@ -297,9 +324,11 @@ const TMPL_CELL = `
             {{- end}}
         }
 
+        {{- if  eq .IsMergeLayout  false}}
         public {{ .ClassName }}() {
             this(null);
         }
+        {{- end}}
     }
 `
 
