@@ -11,24 +11,22 @@ import (
 	"unicode"
 )
 
-//TODO: implement  <include /> functionlity
-
 const XML_DIR = `D:\dev_working2\MS_Native\app\src\main\res\layout\`
 
 //const XML_DIR = `D:\ME\_apks\Soroush0.14.4_\res\layout\`
 //const XML_DIR = `D:\ME\_apks\com.facebook.katana_105.0.0.0.86-44450406_minAPI22\res\layout\`
-const OUTPUT_DIR = `D:\dev_working2\MS_Native\app\src\main\java\com\mardomsara\social\ui\gen\`
-const OUT_CLASS_NAME = "GenViews"
-const OUT_PACKAGE_NAME = "com.mardomsara.social.ui.gen"
+const OUTPUT_DIR = `D:\dev_working2\MS_Native\app\src\main\java\com\mardomsara\social\ui\`
+const OUT_CLASS_NAME = "X"
+const OUT_PACKAGE_NAME = "com.mardomsara.social.ui"
 
 type FieldView struct {
-	ViewClass string
-	Id        string `xml:"id,attr"`
-
-	XMLName   xml.Name
-	Content   []byte       `xml:",innerxml"`
-	Childs    []*FieldView `xml:",any"`
-	ShouldSet bool
+    ViewClass string
+    Id        string `xml:"id,attr"`
+    Layout    string `xml:"layout,attr"`
+    XMLName   xml.Name
+    Content   []byte       `xml:",innerxml"`
+    Childs    []*FieldView `xml:",any"`
+    ShouldSet bool
 }
 
 type CellView struct {
@@ -103,7 +101,7 @@ func transformNewXmlFile(xmlF os.FileInfo) {
 
 	root.walkDown(cell)
 
-	if len(cell.Fields) > 0 {
+	if len(cell.Fields) > 0 {//againest <merge/> tag
 		rootCls := cell.Fields[0].ViewClass
 		if len(rootCls) > 0 && unicode.IsUpper(rune(rootCls[0])) { //not <merge /> xmls
 			genFile.Cells = append(genFile.Cells, cell)
@@ -114,11 +112,17 @@ func transformNewXmlFile(xmlF os.FileInfo) {
 func (field *FieldView) walkDown(cell *CellView) {
 	field.extractClassName()
 	if unicode.IsLower(rune(field.ViewClass[0])) { //not <include /> tag
+        if field.XMLName.Local == "include"{
+            //fmt.Println("layout:" +field.Layout + " "+ field.XMLName.Local)
+            addIncludeTag(field,cell)
+        }
 		return
 	}
-	cell.Fields = append(cell.Fields, field)
-	field.processFieldView()
-	for _, child := range field.Childs {
+
+    field.processFieldView()
+    cell.Fields = append(cell.Fields, field)
+
+    for _, child := range field.Childs {
 		child.walkDown(cell)
 	}
 }
@@ -133,6 +137,20 @@ func (field *FieldView) processFieldView() bool {
 	}
 	//fmt.Printf("%v %v %v \n",field.XMLName.Local,field.Id,field.ViewClass)
 	return true
+}
+
+//todo extract xml reader
+func addIncludeTag(include *FieldView, cell *CellView) {
+    layout := stripRef(include.Layout)
+    data, err := ioutil.ReadFile(XML_DIR + layout + ".xml")
+    noErr(err)
+    buf := bytes.NewBuffer(data)
+    dec := xml.NewDecoder(buf)
+    var root FieldView
+    err = dec.Decode(&root)
+    noErr(err)
+
+    root.walkDown(cell)
 }
 
 //get Class name - ex: com.mardomsara.com.Avatar -> Avatar
@@ -181,7 +199,19 @@ func (g *GenFile) Gen() {
 	err = tmpl2.Execute(outFileBody, g)
 	noErr(err)
 
-	ioutil.WriteFile(OUTPUT_DIR+OUT_CLASS_NAME+".java", outFileBody.Bytes(), 0666)
+	outJava := OUTPUT_DIR + OUT_CLASS_NAME + ".java"
+
+	oldWirte, err := ioutil.ReadFile(outJava)
+	if err != nil || !bytes.Equal(outFileBody.Bytes(),oldWirte) {
+		ioutil.WriteFile(outJava, outFileBody.Bytes(), 0666)
+	}
+	// ioutil.WriteFile(OUTPUT_DIR+OUT_CLASS_NAME+".java", outFileBody.Bytes(), 0666)
+}
+
+//ex: @layout/titlebar => titlebar or @+id/my_text => my_text
+func stripRef(ref string)string {
+    arr := strings.Split(ref, "/")
+    return arr[1]
 }
 
 func ToCamel(s string) string {
@@ -269,6 +299,7 @@ package {{.PackageName}};
 
 import android.widget.*;
 import android.view.*;
+import android.webkit.WebView;
 
 {{ range $key, $val := .Imports.OtherViews }}
 import {{ $key }};
