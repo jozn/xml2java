@@ -15,7 +15,6 @@ import (
 //find ids just use the name of layout to it class in the X class (must not be merge layout)
 //maybe this is overkill and better tu use compond view in this case
 
-
 const XML_DIR = `D:\dev_working2\MS_Native\app\src\main\res\layout\`
 
 //const XML_DIR = `D:\ME\_apks\Soroush0.14.4_\res\layout\`
@@ -25,21 +24,22 @@ const OUT_CLASS_NAME = "X"
 const OUT_PACKAGE_NAME = "com.mardomsara.social.ui"
 
 type FieldView struct {
-    ViewClass string
-    Id        string `xml:"id,attr"`
-    Layout    string `xml:"layout,attr"`
-    XMLName   xml.Name
-    Content   []byte       `xml:",innerxml"`
-    Childs    []*FieldView `xml:",any"`
-    ShouldSet bool
+	ViewClass string
+	Id        string `xml:"id,attr"`
+	Layout    string `xml:"layout,attr"`
+	XMLName   xml.Name
+	Content   []byte       `xml:",innerxml"`
+	Childs    []*FieldView `xml:",any"`
+	ShouldSet bool
 }
 
 type CellView struct {
-	FileName  string
-	ClassName string
-	RootField FieldView
-	Fields    []*FieldView
-    IsMergeLayout bool
+	FileName      string
+	ClassName     string
+	RootField     FieldView
+	Fields        []*FieldView
+	IsMergeLayout bool
+    RootClass string
 }
 
 type GenFile struct {
@@ -105,10 +105,15 @@ func transformNewXmlFile(xmlF os.FileInfo) {
 		RootField: root,
 	}
 
-	root.walkDown(cell,false)
+	root.walkDown(cell, false)
 
-	if len(cell.Fields) > 0 {//againest <merge/> tag
-        //fmt.Println(cell.FileName)
+	if len(cell.Fields) > 0 { //againest <merge/> tag
+		//fmt.Println(cell.FileName)
+        if cell.IsMergeLayout {
+            cell.RootClass = "ViewGroup"
+        }else {
+            cell.RootClass = cell.Fields[0].ViewClass
+        }
 		rootCls := cell.Fields[0].ViewClass
 		if len(rootCls) > 0 { //not <merge /> xmls
 			genFile.Cells = append(genFile.Cells, cell)
@@ -119,34 +124,34 @@ func transformNewXmlFile(xmlF os.FileInfo) {
 func (field *FieldView) walkDown(cell *CellView, isIncludeCall bool) {
 	field.extractClassName()
 	if unicode.IsLower(rune(field.ViewClass[0])) { //not <include /> tag
-        //just we support include and merge tag of no View tags
-        if field.XMLName.Local != "include" && field.XMLName.Local != "merge"{
-            return
-        }
+		//just we support include and merge tag of no View tags
+		if field.XMLName.Local != "include" && field.XMLName.Local != "merge" {
+			return
+		}
 
-        if field.XMLName.Local == "include"{
-            //fmt.Println("layout:" +field.Layout + " "+ field.XMLName.Local)
-            addIncludeTag(field,cell)
-        }
+		if field.XMLName.Local == "include" {
+			//fmt.Println("layout:" +field.Layout + " "+ field.XMLName.Local)
+			addIncludeTag(field, cell)
+		}
 	}
 
-    if field.XMLName.Local == "merge" && isIncludeCall == false{
-        cell.IsMergeLayout = true
-    }
+	if field.XMLName.Local == "merge" && isIncludeCall == false {
+		cell.IsMergeLayout = true
+	}
 
-    field.addFieldViewToCellView(cell)
+	field.addFieldViewToCellView(cell)
 
-    for _, child := range field.Childs {
+	for _, child := range field.Childs {
 		child.walkDown(cell, isIncludeCall)
 	}
 }
 
-func (field *FieldView) addFieldViewToCellView(cell *CellView)  {
-    if field.XMLName.Local == "include" || field.XMLName.Local == "merge"{
-        return
-    }
+func (field *FieldView) addFieldViewToCellView(cell *CellView) {
+	if field.XMLName.Local == "include" || field.XMLName.Local == "merge" {
+		return
+	}
 
-    cell.Fields = append(cell.Fields, field)
+	cell.Fields = append(cell.Fields, field)
 
 	genFile.Imports.Add(field.XMLName.Local)
 
@@ -161,16 +166,16 @@ func (field *FieldView) addFieldViewToCellView(cell *CellView)  {
 
 //todo extract xml reader
 func addIncludeTag(include *FieldView, cell *CellView) {
-    layout := stripRef(include.Layout)
-    data, err := ioutil.ReadFile(XML_DIR + layout + ".xml")
-    noErr(err)
-    buf := bytes.NewBuffer(data)
-    dec := xml.NewDecoder(buf)
-    var root FieldView
-    err = dec.Decode(&root)
-    noErr(err)
+	layout := stripRef(include.Layout)
+	data, err := ioutil.ReadFile(XML_DIR + layout + ".xml")
+	noErr(err)
+	buf := bytes.NewBuffer(data)
+	dec := xml.NewDecoder(buf)
+	var root FieldView
+	err = dec.Decode(&root)
+	noErr(err)
 
-    root.walkDown(cell,true)
+	root.walkDown(cell, true)
 }
 
 //get Class name - ex: com.mardomsara.com.Avatar -> Avatar
@@ -222,16 +227,16 @@ func (g *GenFile) Gen() {
 	outJava := OUTPUT_DIR + OUT_CLASS_NAME + ".java"
 
 	oldWirte, err := ioutil.ReadFile(outJava)
-	if err != nil || !bytes.Equal(outFileBody.Bytes(),oldWirte) {
+	if err != nil || !bytes.Equal(outFileBody.Bytes(), oldWirte) {
 		ioutil.WriteFile(outJava, outFileBody.Bytes(), 0666)
 	}
 	// ioutil.WriteFile(OUTPUT_DIR+OUT_CLASS_NAME+".java", outFileBody.Bytes(), 0666)
 }
 
 //ex: @layout/titlebar => titlebar or @+id/my_text => my_text
-func stripRef(ref string)string {
-    arr := strings.Split(ref, "/")
-    return arr[1]
+func stripRef(ref string) string {
+	arr := strings.Split(ref, "/")
+	return arr[1]
 }
 
 func ToCamel(s string) string {
@@ -289,7 +294,7 @@ func (cell *CellView) String() string {
 }
 
 const TMPL_CELL = `
-{{- $rootClass := ( index .Fields 0).ViewClass }}
+{{- $rootClass := .RootClass }} //( index .Fields 0).ViewClass
 
     public static class {{ .ClassName }} {
         public {{ $rootClass }} root;
