@@ -304,11 +304,11 @@ const TMPL_CELL = `
       {{- end}}
      {{- end}}
 
-        public {{ .ClassName }}(ViewGroup parent) {
+        public {{ .ClassName }}(Context context,ViewGroup parent) {
             {{- if  eq .IsMergeLayout  true}}
-            root = ({{ $rootClass }}) AppUtil.inflate(R.layout.{{ .FileName }},parent,true);//for Compound Views
+            root = ({{ $rootClass }}) LayoutInflater.from(context).inflate(R.layout.{{ .FileName }},parent,true);//for Compound Views
             {{ else }}
-            root = ({{ $rootClass }}) AppUtil.inflate(R.layout.{{ .FileName }},parent);
+            root = ({{ $rootClass }}) LayoutInflater.from(context).inflate(R.layout.{{ .FileName }},parent ,false);
             {{- end}}
             {{- range .Fields -}}
               {{- if .ShouldSet}}
@@ -319,9 +319,21 @@ const TMPL_CELL = `
 
         {{- if  eq .IsMergeLayout  false}}
         public {{ .ClassName }}() {
-            this(null);
+            this(AppUtil.getContext(),null);
         }
+
+        public {{ .ClassName }}(Context context) {
+            this(context ,null);
+        }
+        {{- else -}}
+        //Compound Views Must have parent otherwise will panic
         {{- end}}
+
+        public {{ .ClassName }}(ViewGroup parent) {
+            this(AppUtil.getContext() ,parent);
+        }
+
+
     }
 `
 
@@ -331,6 +343,8 @@ package {{.PackageName}};
 import android.widget.*;
 import android.view.*;
 import android.webkit.WebView;
+import android.view.LayoutInflater;
+import android.content.Context;
 
 {{ range $key, $val := .Imports.OtherViews }}
 import {{ $key }};
