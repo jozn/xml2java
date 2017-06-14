@@ -294,8 +294,7 @@ func (cell *CellView) String() string {
 }
 
 const TMPL_CELL = `
-{{- $rootClass := .RootClass }} //( index .Fields 0).ViewClass
-
+{{- $rootClass := .RootClass }}
     public static class {{ .ClassName }} {
         public {{ $rootClass }} root;
      {{- range .Fields -}}
@@ -332,8 +331,6 @@ const TMPL_CELL = `
         public {{ .ClassName }}(ViewGroup parent) {
             this(AppUtil.getContext() ,parent);
         }
-
-
     }
 `
 
