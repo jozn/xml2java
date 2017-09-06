@@ -331,6 +331,14 @@ const TMPL_CELL = `
         public {{ .ClassName }}(ViewGroup parent) {
             this(AppUtil.getContext() ,parent);
         }
+
+        public static class IDS {
+            {{- range .Fields -}}
+                {{- if .ShouldSet}}
+            public int {{.Id}} = R.id.{{- .Id -}};
+                {{- end}}
+            {{- end}}
+        }
     }
 `
 
