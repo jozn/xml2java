@@ -16,17 +16,22 @@ import (
 //maybe this is overkill and better tu use compond view in this case
 
 // const XML_DIR = `D:\dev_working2\MS_Native\app\src\main\res\layout\`
-const XML_DIR = `D:\dev_working2\MS_Native\shared\src\main\res\layout\`
+//const XML_DIR = `D:\dev_working2\MS_Native\shared\src\main\res\layout\`
+//const XML_DIR = `D:\ms\social\app\src\main\res\layout\`
+const XML_DIR = `D:\ms\_new\social\app\src\main\res\layout\`
 
 //const XML_DIR = `D:\ME\_apks\Soroush0.14.4_\res\layout\`
 //const XML_DIR = `D:\ME\_apks\com.facebook.katana_105.0.0.0.86-44450406_minAPI22\res\layout\`
 // const OUTPUT_DIR = `D:\dev_working2\MS_Native\app\src\main\java\com\mardomsara\social\ui\`
 // const OUTPUT_DIR = `D:\dev_working2\MS_Native\app\src\main\java\com\mardomsara\shared\ui_shared\`
 //const OUTPUT_DIR = `D:\dev_working2\MS_Native\shared\src\main\java\com\mardomsara\shared\ui_shared\`
-const OUTPUT_DIR = `D:\dev_working2\social\common\src\main\java\com\mardomsara\shared\ui_shared\`
+//const OUTPUT_DIR = `D:\dev_working2\social\common\src\main\java\com\mardomsara\shared\ui_shared\`
+//const OUTPUT_DIR = `D:\ms\social\app\src\main\java\com\mardomsara\social\ui\`
+const OUTPUT_DIR = `D:\ms\_new\social\app\src\main\java\com\mardomsara\social\ui\`
 const OUT_CLASS_NAME = "X"
 // const OUT_PACKAGE_NAME = "com.mardomsara.social.ui"
-const OUT_PACKAGE_NAME = "com.mardomsara.shared.ui_shared"
+//const OUT_PACKAGE_NAME = "com.mardomsara.shared.ui_shared"
+const OUT_PACKAGE_NAME = "com.mardomsara.social.ui"
 
 type FieldView struct {
 	ViewClass string
@@ -309,10 +314,14 @@ const TMPL_CELL = `
      {{- end}}
 
         public {{ .ClassName }}(Context context,ViewGroup parent) {
+            this(context,parent, R.layout.{{ .FileName }} );
+        }
+
+        public {{ .ClassName }}(Context context,ViewGroup parent, int layout) {
             {{- if  eq .IsMergeLayout  true}}
-            root = ({{ $rootClass }}) LayoutInflater.from(context).inflate(R.layout.{{ .FileName }},parent,true);//for Compound Views
+            root = ({{ $rootClass }}) LayoutInflater.from(context).inflate(layout,parent,true);//for Compound Views
             {{ else }}
-            root = ({{ $rootClass }}) LayoutInflater.from(context).inflate(R.layout.{{ .FileName }},parent ,false);
+            root = ({{ $rootClass }}) LayoutInflater.from(context).inflate(layout,parent ,false);
             {{- end}}
             {{- range .Fields -}}
               {{- if .ShouldSet}}
@@ -322,9 +331,9 @@ const TMPL_CELL = `
         }
 
         {{- if  eq .IsMergeLayout  false}}
-        public {{ .ClassName }}() {
+        /*public {{ .ClassName }}() {
             this(AppUtil.getContext(),null);
-        }
+        }*/
 
         public {{ .ClassName }}(Context context) {
             this(context ,null);
@@ -334,7 +343,7 @@ const TMPL_CELL = `
         {{- end}}
 
         public {{ .ClassName }}(ViewGroup parent) {
-            this(AppUtil.getContext() ,parent);
+            this(parent.getContext() ,parent);
         }
 
         public static class IDS {
@@ -361,8 +370,8 @@ import android.content.Context;
 import {{ $key }};
 {{- end }}
 
-import com.mardomsara.shared.helpers.AppUtil;
-import com.ms.shared.R;
+//import com.mardomsara.social.helpers.AppUtil;
+import com.mardomsara.social.R;
 
 public class {{.ClassName}} {
     {{.OutClass}}
