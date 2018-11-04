@@ -4,6 +4,11 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 
+task xml2javaTask(type: Exec)  {
+    commandLine 'xml2java' , "com.example.hello"
+}
+build.dependsOn xml2javaTask
+
 android {
     compileSdkVersion 28
     defaultConfig {
@@ -20,6 +25,8 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    preBuild.dependsOn xml2javaTask
 }
 
 dependencies {
