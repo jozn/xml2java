@@ -15,15 +15,8 @@ import (
 )
 
 //todo: maybe could use <include /> the way that if it has id, then look at that layout and instead of inline
-//find ids just use the name of layout to it class in the X class (must not be merge layout)
-//maybe this is overkill and better tu use compond view in this case
-
-/*var (
-	XML_DIR          = `D:\ms\_new\social\app\src\main\res\layout\`
-	OUTPUT_DIR       = `D:\ms\_new\social\app\src\main\java\com\mardomsara\social\ui\`
-	OUT_CLASS_NAME   = "X"
-	OUT_PACKAGE_NAME = "com.mardomsara.social.ui"
-)*/
+//find it's ids ,just use the name of layout to it class in the X class (must not be merge layout)
+//maybe this is overkill and better to use compound view in this case
 
 type argsConf struct {
 	Package       string `arg:"positional,-p,help:app package name (ex: com.example.hello)"`
@@ -67,7 +60,7 @@ type Imports struct {
 
 var genFile *GenFile
 
-//there are many of Android views splited in android.view and android.widget for now just mass import them ("*")
+//there are many of Android views in android.view and android.widget for now just mass import them ("*")
 //see: https://developer.android.com/reference/android/view/package-summary.html
 //https://developer.android.com/reference/android/widget/package-summary.html
 var notWidgets = map[string]bool{
@@ -82,11 +75,7 @@ var notWidgets = map[string]bool{
 var args *argsConf
 
 func main() {
-	wd, _ := os.Getwd()
-	fmt.Println("wd: ", wd)
-
 	parseArgs()
-	fmt.Println(args)
 
 	genFile = &GenFile{
 		Imports:     &Imports{},
@@ -100,7 +89,6 @@ func main() {
 	}
 
 	for _, xml := range xmls {
-		//fmt.Println(xml.Name())
 		transformNewXmlFile(xml)
 	}
 
@@ -153,7 +141,6 @@ func transformNewXmlFile(xmlF os.FileInfo) {
 	root.walkDown(cell, false)
 
 	if len(cell.Fields) > 0 { //againest <merge/> tag
-		//fmt.Println(cell.FileName)
 		if cell.IsMergeLayout {
 			cell.RootClass = "ViewGroup"
 		} else {
@@ -175,7 +162,6 @@ func (field *FieldView) walkDown(cell *CellView, isIncludeCall bool) {
 		}
 
 		if field.XMLName.Local == "include" {
-			//fmt.Println("layout:" +field.Layout + " "+ field.XMLName.Local)
 			addIncludeTag(field, cell)
 		}
 	}
@@ -205,7 +191,6 @@ func (field *FieldView) addFieldViewToCellView(cell *CellView) {
 		field.Id = arr[1]
 		field.ShouldSet = true
 	}
-	//fmt.Printf("%v %v %v \n",field.XMLName.Local,field.Id,field.ViewClass)
 	return
 }
 
@@ -223,7 +208,7 @@ func addIncludeTag(include *FieldView, cell *CellView) {
 	root.walkDown(cell, true)
 }
 
-//get Class name - ex: com.mardomsara.com.Avatar -> Avatar
+//get Class name - ex: com.example.com.Avatar -> Avatar
 func (field *FieldView) extractClassName() {
 	clsDotIndex := strings.LastIndex(field.XMLName.Local, ".")
 	if clsDotIndex == -1 {
@@ -271,11 +256,10 @@ func (g *GenFile) Gen() {
 	outJava := path.Join(args.Out_dir, args.Out_classname+".java")
 
 	//an optimization for taking advantage of faster build time
-	oldWirte, err := ioutil.ReadFile(outJava)
-	if err != nil || !bytes.Equal(outFileBody.Bytes(), oldWirte) {
+	oldWrite, err := ioutil.ReadFile(outJava)
+	if err != nil || !bytes.Equal(outFileBody.Bytes(), oldWrite) {
 		ioutil.WriteFile(outJava, outFileBody.Bytes(), 0666)
 	}
-	// ioutil.WriteFile(OUTPUT_DIR+OUT_CLASS_NAME+".java", outFileBody.Bytes(), 0666)
 }
 
 //ex: @layout/titlebar => titlebar or @+id/my_text => my_text
@@ -365,11 +349,6 @@ const TMPL_CELL = `
             {{- end}}
         }
 
-        {{- if  eq .IsMergeLayout  false}}
-        /*public {{ .ClassName }}() {
-            this(AppUtil.getContext(),null);
-        }*/
-
         public {{ .ClassName }}(Context context) {
             this(context ,null);
         }
@@ -401,18 +380,17 @@ import android.webkit.WebView;
 import android.view.LayoutInflater;
 import android.content.Context;
 
-{{ range $key, $val := .Imports.OtherViews }}
+{{- range $key, $val := .Imports.OtherViews }}
 import {{ $key }};
-{{- end }}
+{{- end -}}
 
-//import com.mardomsara.social.helpers.AppUtil;
 import {{.PackageName}}.R;
 
 public class {{.ClassName}} {
     {{.OutClass}}
 }
 
-////////////////////////////////
+/////////////// manual imports /////////////////
 /*
 {{- range $key, $val := .Imports.AndroidViews }}
 import android.widget.{{ $key }};
