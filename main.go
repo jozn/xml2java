@@ -19,11 +19,11 @@ import (
 //maybe this is overkill and better to use compound view in this case
 
 type argsConf struct {
-	Package       string `arg:"positional,-p,help:app package name (ex: com.example.hello)"`
-	App_dir       string `arg:"-a,help:android application project app path (not the app module) (default: current directory)"`
-	Xml_dir       string `arg:"-x,help:app xml layout directory (default: [app]/[package]/xml/layout/)"`
-	Out_dir       string `arg:"-o,help:directory to flush generated output"`
-	Out_classname string `arg:"-n,help:class name of generated output (default X)"`
+	PACKAGE        string `arg:"positional,-p,help:app package name (ex: com.example.hello)"`
+	APP_DIR        string `arg:"-a,help:android application project app path (default: current directory)"`
+	XML_DIR        string `arg:"-x,help:app xml layout directory (default example 'src/main/res/layout')"`
+	OUT_DIR        string `arg:"-o,help:directory to flush generated output (default example 'src/main/java/com/example/hello')"`
+	OUT_CLASS_NAME string `arg:"-n,help:class name of generated output (default X)"`
 }
 
 type FieldView struct {
@@ -79,11 +79,11 @@ func main() {
 
 	genFile = &GenFile{
 		Imports:     &Imports{},
-		ClassName:   args.Out_classname,
-		PackageName: args.Package,
+		ClassName:   args.OUT_CLASS_NAME,
+		PackageName: args.PACKAGE,
 	}
 
-	xmls, err := ioutil.ReadDir(args.Xml_dir)
+	xmls, err := ioutil.ReadDir(args.XML_DIR)
 	if err != nil {
 		panic(err)
 	}
@@ -99,31 +99,31 @@ func parseArgs() {
 	args = &argsConf{}
 	arg.MustParse(args)
 
-	if args.Package == "" {
-		log.Fatal("Package could not be empty. The first command line paramter is package name")
+	if args.PACKAGE == "" {
+		log.Fatal("PACKAGE could not be empty. The first command line paramter is package name")
 	}
 
-	if args.App_dir == "" {
+	if args.APP_DIR == "" {
 		wd, err := os.Getwd()
 		noErr(err)
-		args.App_dir = wd
+		args.APP_DIR = wd
 	}
 
-	if args.Xml_dir == "" {
-		args.Xml_dir = path.Join(args.App_dir, "/src/main/res/layout/")
+	if args.XML_DIR == "" {
+		args.XML_DIR = path.Join(args.APP_DIR, "/src/main/res/layout/")
 	}
 
-	if args.Out_dir == "" {
-		args.Out_dir = path.Join(args.App_dir, "/src/main/java", strings.Replace(args.Package, ".", "/", -1))
+	if args.OUT_DIR == "" {
+		args.OUT_DIR = path.Join(args.APP_DIR, "/src/main/java", strings.Replace(args.PACKAGE, ".", "/", -1))
 	}
 
-	if args.Out_classname == "" {
-		args.Out_classname = "X"
+	if args.OUT_CLASS_NAME == "" {
+		args.OUT_CLASS_NAME = "X"
 	}
 }
 
 func transformNewXmlFile(xmlF os.FileInfo) {
-	data, err := ioutil.ReadFile(path.Join(args.Xml_dir, xmlF.Name()))
+	data, err := ioutil.ReadFile(path.Join(args.XML_DIR, xmlF.Name()))
 	noErr(err)
 	buf := bytes.NewBuffer(data)
 	dec := xml.NewDecoder(buf)
@@ -197,7 +197,7 @@ func (field *FieldView) addFieldViewToCellView(cell *CellView) {
 //todo extract xml reader
 func addIncludeTag(include *FieldView, cell *CellView) {
 	layout := stripRef(include.Layout)
-	data, err := ioutil.ReadFile(path.Join(args.Xml_dir, layout, ".xml"))
+	data, err := ioutil.ReadFile(path.Join(args.XML_DIR, layout, ".xml"))
 	noErr(err)
 	buf := bytes.NewBuffer(data)
 	dec := xml.NewDecoder(buf)
@@ -253,7 +253,7 @@ func (g *GenFile) Gen() {
 	err = tmpl2.Execute(outFileBody, g)
 	noErr(err)
 
-	outJava := path.Join(args.Out_dir, args.Out_classname+".java")
+	outJava := path.Join(args.OUT_DIR, args.OUT_CLASS_NAME+".java")
 
 	//an optimization for taking advantage of faster build time
 	oldWrite, err := ioutil.ReadFile(outJava)
@@ -352,9 +352,6 @@ const TMPL_CELL = `
         public {{ .ClassName }}(Context context) {
             this(context ,null);
         }
-        {{- else -}}
-        //Compound Views Must have parent otherwise will panic
-        {{- end}}
 
         public {{ .ClassName }}(ViewGroup parent) {
             this(parent.getContext() ,parent);
