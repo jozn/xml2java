@@ -15,22 +15,10 @@ import (
 //find ids just use the name of layout to it class in the X class (must not be merge layout)
 //maybe this is overkill and better tu use compond view in this case
 
-// const XML_DIR = `D:\dev_working2\MS_Native\app\src\main\res\layout\`
-//const XML_DIR = `D:\dev_working2\MS_Native\shared\src\main\res\layout\`
-//const XML_DIR = `D:\ms\social\app\src\main\res\layout\`
 const XML_DIR = `D:\ms\_new\social\app\src\main\res\layout\`
 
-//const XML_DIR = `D:\ME\_apks\Soroush0.14.4_\res\layout\`
-//const XML_DIR = `D:\ME\_apks\com.facebook.katana_105.0.0.0.86-44450406_minAPI22\res\layout\`
-// const OUTPUT_DIR = `D:\dev_working2\MS_Native\app\src\main\java\com\mardomsara\social\ui\`
-// const OUTPUT_DIR = `D:\dev_working2\MS_Native\app\src\main\java\com\mardomsara\shared\ui_shared\`
-//const OUTPUT_DIR = `D:\dev_working2\MS_Native\shared\src\main\java\com\mardomsara\shared\ui_shared\`
-//const OUTPUT_DIR = `D:\dev_working2\social\common\src\main\java\com\mardomsara\shared\ui_shared\`
-//const OUTPUT_DIR = `D:\ms\social\app\src\main\java\com\mardomsara\social\ui\`
 const OUTPUT_DIR = `D:\ms\_new\social\app\src\main\java\com\mardomsara\social\ui\`
 const OUT_CLASS_NAME = "X"
-// const OUT_PACKAGE_NAME = "com.mardomsara.social.ui"
-//const OUT_PACKAGE_NAME = "com.mardomsara.shared.ui_shared"
 const OUT_PACKAGE_NAME = "com.mardomsara.social.ui"
 
 type FieldView struct {
@@ -227,7 +215,6 @@ func (g *GenFile) Gen() {
 		g.OutClass += out.String()
 	}
 
-	//fmt.Println(g.OutClass)
 	outFileBody := bytes.NewBufferString("")
 	tmpl2, err := template.New("t2").Parse(TMPL_FILE)
 	noErr(err)
@@ -378,7 +365,9 @@ public class {{.ClassName}} {
 }
 
 ////////////////////////////////
+/*
 {{- range $key, $val := .Imports.AndroidViews }}
-//import android.widget.{{ $key }};
+import android.widget.{{ $key }};
 {{- end }}
+*/
 `
