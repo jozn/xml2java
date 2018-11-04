@@ -23,11 +23,11 @@ const OUT_PACKAGE_NAME = "com.mardomsara.social.ui"
 
 type FieldView struct {
 	ViewClass string
-	Id        string `xml:"id,attr"`
-	Layout    string `xml:"layout,attr"`
+	Id        string       `xml:"id,attr"`
+	Layout    string       `xml:"layout,attr"`
 	XMLName   xml.Name
 	Content   []byte       `xml:",innerxml"`
-	Childs    []*FieldView `xml:",any"`
+	Childes   []*FieldView `xml:",any"`
 	ShouldSet bool
 }
 
@@ -58,7 +58,7 @@ var genFile *GenFile
 //there are many of Android views splited in android.view and android.widget for now just mass import them ("*")
 //see: https://developer.android.com/reference/android/view/package-summary.html
 //https://developer.android.com/reference/android/widget/package-summary.html
-var notWigets = map[string]bool{
+var notWidgets = map[string]bool{
 	"include":      true,
 	"merge":        true,
 	"view":         true,
@@ -139,7 +139,7 @@ func (field *FieldView) walkDown(cell *CellView, isIncludeCall bool) {
 
 	field.addFieldViewToCellView(cell)
 
-	for _, child := range field.Childs {
+	for _, child := range field.Childes {
 		child.walkDown(cell, isIncludeCall)
 	}
 }
@@ -197,7 +197,7 @@ func (i *Imports) Add(cls string) {
 		if i.AndroidViews == nil {
 			i.AndroidViews = make(map[string]bool)
 		}
-		if _, ok := notWigets[cls]; !ok {
+		if _, ok := notWidgets[cls]; !ok {
 			i.AndroidViews[cls] = true
 		}
 	}
