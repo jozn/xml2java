@@ -13,7 +13,9 @@ I demonstrate with an example for file `activity_main.xml` in `layout` directory
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:id="@+id/my_constraint_layout"
+    >
 
     <TextView
         android:layout_width="wrap_content"
@@ -22,7 +24,9 @@ I demonstrate with an example for file `activity_main.xml` in `layout` directory
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        android:id="@+id/my_text_view"
+        />
 
 </android.support.constraint.ConstraintLayout>
 ```
@@ -43,6 +47,8 @@ public class X {
     
     public static class ActivityMain {
         public ConstraintLayout root;
+        public ConstraintLayout my_constraint_layout;
+        public TextView my_text_view;
 
         public ActivityMain(Context context,ViewGroup parent) {
             this(context,parent, R.layout.activity_main );
@@ -50,6 +56,8 @@ public class X {
 
         public ActivityMain(Context context,ViewGroup parent, int layout) {
             root = (ConstraintLayout) LayoutInflater.from(context).inflate(layout,parent ,false);
+            my_constraint_layout = (ConstraintLayout) root.findViewById( R.id.my_constraint_layout);
+            my_text_view = (TextView) root.findViewById( R.id.my_text_view);
         }
 
         public ActivityMain(Context context) {
@@ -62,6 +70,8 @@ public class X {
 
         public static class IDS {
             public static int LAYOUT = R.layout.activity_main;
+            public static int my_constraint_layout = R.id.my_constraint_layout;
+            public static int my_text_view = R.id.my_text_view;
         }
     }
 
@@ -70,6 +80,30 @@ public class X {
 ```
 
 Then in your activates and fragments you can use this code:
+
+```java
+package com.example.hello;
+
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
+
+public class Activity extends AppCompatActivity {
+	X.ActivityMain x;
+
+	@Override
+	protected void onCreate(@Nullable Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		x = new X.ActivityMain(getApplicationContext());
+		x.my_text_view.setText("Hi There!");
+		
+		setContentView(x.root);
+	}
+
+}
+
+```
 
 
 for every layout `*.xml` file at layout this tool will add an static class in `X.java`, every time that projects gets build this tool will sync all layouts with X class.
