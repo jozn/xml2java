@@ -1,7 +1,7 @@
 # xml2java
-Get ride of findViewById in android. Documentation and examples will soon be added.
+Get rid of findViewById in android. Documentation and examples will soon be added.
 
-This tool, autmaicly build a file X.java, in this file every laoyout in 
+This tool, automatically build a file X.java, in this file every layout in 
 ### How This Tool Works?
 I demonstrate with an example for file `activity_main.xml` in `layout` directory:
 
@@ -27,7 +27,7 @@ I demonstrate with an example for file `activity_main.xml` in `layout` directory
 </android.support.constraint.ConstraintLayout>
 ```
 
-this tools will genrate `X.java`:
+this tools will generate `X.java`:
 ```java
 
 package com.example.hello;
@@ -67,14 +67,12 @@ public class X {
 
 }
 
-/////////////// manual imports /////////////////
-/*
-import android.widget.TextView;
-*/
-
 ```
 
-for every layout `*.xml` file at lyout this tool will add an static class in `X.java`, every time that projects gets build this tool will sync all layouts with X claass.
+Then in your activates and fragments you can use this code:
+
+
+for every layout `*.xml` file at layout this tool will add an static class in `X.java`, every time that projects gets build this tool will sync all layouts with X class.
 
 ### How to Install
 You must install Golang, then in command line:
@@ -85,7 +83,7 @@ then in app gradle file add this:
 
 ```java
 task xml2javaTask(type: Exec)  {
-    commandLine 'xml2java' , "com.example.hello"
+    commandLine 'xml2java' , "com.example.hello" //your app package name
 }
 build.dependsOn xml2javaTask
 
@@ -94,4 +92,35 @@ android {
     preBuild.dependsOn xml2javaTask
 }
 ```
+### See more command line option:
+Use `xml2java -h` :
+```
+Usage: xml2java [--app_dir APP_DIR] [--xml_dir XML_DIR] [--out_dir OUT_DIR] [--out_class_name OUT_CLASS_NAME] PACKAGE
 
+Positional arguments:
+  PACKAGE                app package name (ex: com.example.hello)
+
+Options:
+  --app_dir APP_DIR, -a APP_DIR
+                         android application project app path (default: current directory)
+  --xml_dir XML_DIR, -x XML_DIR
+                         app xml layout directory (default example 'src/main/res/layout')
+  --out_dir OUT_DIR, -o OUT_DIR
+                         directory to flush generated output (default example 'src/main/java/com/example/hello')
+  --out_class_name OUT_CLASS_NAME, -n OUT_CLASS_NAME
+                         class name of generated output (default X)
+  --help, -h             display this help and exit
+```
+### FAQ:
+
+#### What is the Philosophy of this tool:
+The day that i build this tool, android databinding was not available. 
+I build the main codes blocks of this tool in one night, after get tired of waiting to new build pushed to device and then crashed because there was the common error of cannot find id. this tools will obsolete this error and reduce a lot of boilerplate codes
+
+#### How This compare too android databinding and butterknife?
+This tool has near zero learning curve and  zero redundant codes. The only single source of trust is just files at `/layout/*.xml'.
+Android databinding has learning curve and makes you to write code in xml files, something that is adapted from angluarjs.
+butterknife has a lot of redundancy of codes.
+
+#### Why it's written in Golang, and not common java and android-apt ?
+I build this tool mainly for my project, but later i decided to open source this, maybe in future i write this in java.
