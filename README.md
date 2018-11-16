@@ -1,5 +1,5 @@
 # xml2java
-Get rid of findViewById in android. Documentation and examples will soon be added.
+Get rid of findViewById in android. Single source of trust of layout files, without reduncency of codes.
 
 This tool, automatically build a file X.java, in this file every layout in 
 ### How This Tool Works?
@@ -145,11 +145,11 @@ Options:
                          class name of generated output (default X)
   --help, -h             display this help and exit
 ```
-### FAQ:
 
+### FAQ:
 #### What is the Philosophy of this tool:
 The day that i build this tool, android databinding was not available. 
-I build the main codes blocks of this tool in one night, after get tired of waiting to new build pushed to device and then crashed because there was the common error of cannot find id. this tools will obsolete this error and reduce a lot of boilerplate codes
+I build the main codes blocks of this tool in one night, after getting tired of waiting to new builds pushed to device and then crashed because of common error of cannot find id. this tool will obsolete this error and reduce a lot of boilerplate codes
 
 #### How This compare too android databinding and butterknife?
 This tool has near zero learning curve and  zero redundant codes. The only single source of trust is just files at `/layout/*.xml'.
@@ -157,4 +157,4 @@ Android databinding has learning curve and makes you to write code in xml files,
 butterknife has a lot of redundancy of codes.
 
 #### Why it's written in Golang, and not common java and android-apt ?
-I build this tool mainly for my project, but later i decided to open source this, maybe in future i write this in java.
+I build this tool mainly for my project, but later i decided to open source this, maybe in future i write this tool in java.
