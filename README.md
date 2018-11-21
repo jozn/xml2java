@@ -2,6 +2,7 @@
 Get rid of findViewById in android. Single source of trust of layout files, without reduncency of codes.
 
 This tool, automatically build a file X.java, in this file every layout in 
+
 ### How This Tool Works?
 I demonstrate with an example for file `activity_main.xml` in `layout` directory:
 
@@ -158,3 +159,6 @@ butterknife has a lot of redundancy of codes.
 
 #### Why it's written in Golang, and not common java and android-apt ?
 I build this tool mainly for my project, but later i decided to open source this, maybe in future i write this tool in java.
+
+#### Give me a real world usage:
+See this real world file `X.java` output to make a scence of what this tool produce to make devloer life easy (output of old version) : [X.java](https://github.com/jozn/ms_native/blob/master/app/src/main/java/com/mardomsara/social/ui/X.java)
