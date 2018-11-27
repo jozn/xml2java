@@ -4,8 +4,10 @@ Get rid of findViewById in android. Single source of trust of layout files, with
 > **Unix philosophy**
 >> Rule of Generation: Developers should avoid writing code by hand and instead write abstract high-level programs that generate code. This rule aims to reduce human errors and save time.
 
-### A Glance of Result of this Tool in Real Projects
+=======
+### A Glance of the Result of This Tool in Real Projects
 For this layout files: https://github.com/jozn/xml2java/tree/master/samples/BigApp/app/src/main/res/layout
+
 The generated output is:  https://github.com/jozn/xml2java/blob/master/samples/BigApp/app/src/main/java/com/example/big/bigapp/X.java
 
 
