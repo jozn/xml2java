@@ -197,7 +197,10 @@ func (field *FieldView) addFieldViewToCellView(cell *CellView) {
 //todo extract xml reader
 func addIncludeTag(include *FieldView, cell *CellView) {
 	layout := stripRef(include.Layout)
-	data, err := ioutil.ReadFile(path.Join(args.XML_DIR, layout, ".xml"))
+	if layout == "" {
+		return
+	}
+	data, err := ioutil.ReadFile(path.Join(args.XML_DIR, layout+".xml"))
 	noErr(err)
 	buf := bytes.NewBuffer(data)
 	dec := xml.NewDecoder(buf)
@@ -379,8 +382,7 @@ import android.content.Context;
 
 {{- range $key, $val := .Imports.OtherViews }}
 import {{ $key }};
-{{- end -}}
-
+{{- end }}
 import {{.PackageName}}.R;
 
 public class {{.ClassName}} {
