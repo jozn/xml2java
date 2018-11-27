@@ -1,7 +1,13 @@
 # xml2java
 Get rid of findViewById in android. Single source of trust of layout files, without reduncency of codes.
 
-This tool, automatically build a file X.java, in this file every layout in 
+> **Unix philosophy**
+>> Rule of Generation: Developers should avoid writing code by hand and instead write abstract high-level programs that generate code. This rule aims to reduce human errors and save time.
+
+### A Glance of Result of this Tool in Real Projects
+For this layout files: https://github.com/jozn/xml2java/tree/master/samples/BigApp/app/src/main/res/layout
+The generated output is:  https://github.com/jozn/xml2java/blob/master/samples/BigApp/app/src/main/java/com/example/big/bigapp/X.java
+
 
 ### How This Tool Works?
 I demonstrate with an example for file `activity_main.xml` in `layout` directory:
