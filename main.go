@@ -372,6 +372,10 @@ const TMPL_CELL = `
 `
 
 const TMPL_FILE = `
+//DON'T EDIT, THIS FILE IS AUTO GENERATED AND ALWAYS WILL BE SYNCED WITH 'layout/*.xml' FILES
+//TO SYNC JUST REBUILD THE APP
+//SEE THIS TOOL AT: https://github.com/jozn/xml2java
+
 package {{.PackageName}};
 
 import android.widget.*;
