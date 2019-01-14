@@ -159,12 +159,12 @@ Options:
 The day that i build this tool, android databinding was not available. 
 I build the main codes blocks of this tool in one night, after getting tired of waiting to new builds pushed to device and then crashed because of common error of cannot find id. this tool will obsolete this error and reduce a lot of boilerplate codes
 
-#### How This compare too android databinding and butterknife?
+#### How This compare to android databinding and butterknife?
 This tool has near zero learning curve and  zero redundant codes. The only single source of trust is just files at `/layout/*.xml'.
-Android databinding has learning curve and makes you to write code in xml files, something that is adapted from angluarjs.
+Android databinding has learning curve and makes you to write logic code in xml files, something that is adapted from angluarjs.
 butterknife has a lot of redundancy of codes.
 
-#### Why it's written in Golang, and not common java and android-apt ?
+#### Why it's written in Golang, and not common java and android-apt aproache?
 I build this tool mainly for my project, but later i decided to open source this, maybe in future i write this tool in java.
 
 #### Give me a real world usage:
